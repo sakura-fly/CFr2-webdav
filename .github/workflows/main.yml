@@ -13,6 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Create wrangler.toml
         env:
           USERNAME: ${{ secrets.USERNAME || '_user' }}
@@ -25,7 +30,12 @@ jobs:
               wrangler.toml.template > wrangler.toml
           cat wrangler.toml
 
-      - name: Build & Deploy Worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Install Wrangler
+        run: |
+          npm install -g wrangler@4.0.0
+          wrangler --version
+
+      - name: Deploy Worker
+        run: wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
